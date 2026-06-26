@@ -17,4 +17,5 @@
 ## 收錄課程
 
 - Git / GitHub 入門
+- AI × Phaser 遊戲上線
 - XR 互動場景建置

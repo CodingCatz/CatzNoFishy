@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI × Phaser 遊戲上線 · 課程目錄</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#06070b;--card:#0f1015;--ink:#f5f5f7;--dim:#9aa0aa;--accent:#6c5ce7;--accent2:#00d2d3;--line:rgba(255,255,255,.1)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:"Noto Sans TC",sans-serif;min-height:100vh;padding:90px 8vw 120px}
+body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:64px 64px;opacity:.05;mask-image:radial-gradient(circle at 85% 8%,#000,transparent 65%)}
+.wrap{position:relative;z-index:1;max-width:1400px;margin:0 auto}
+.kicker{font-family:"Space Grotesk",sans-serif;letter-spacing:.28em;text-transform:uppercase;color:var(--accent2);font-size:16px;font-weight:500;margin-bottom:22px}
+h1{font-family:"Space Grotesk",sans-serif;font-size:72px;line-height:1.05;font-weight:700;letter-spacing:-.02em;margin-bottom:18px}
+.sub{color:var(--dim);font-size:22px;font-weight:300;max-width:880px;line-height:1.55;margin-bottom:56px}
+.track{margin-bottom:54px}
+.track-head{display:flex;align-items:baseline;gap:16px;margin-bottom:22px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+.track-head .eng{font-family:"Space Grotesk",sans-serif;font-size:30px;font-weight:700;letter-spacing:-.01em}
+.track-head .desc{color:var(--dim);font-size:17px;font-weight:300}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:22px}
+.card{display:block;text-decoration:none;color:inherit;background:var(--card);border:1px solid var(--line);
+  border-radius:16px;padding:28px 30px 32px;position:relative;overflow:hidden;transition:.25s cubic-bezier(.16,1,.3,1)}
+.card::after{content:"";position:absolute;left:0;bottom:0;height:3px;width:0;background:var(--accent);transition:width .3s}
+a.card:hover{transform:translateY(-6px);border-color:var(--accent)}
+a.card:hover::after{width:100%}
+.card.soon{opacity:.5;cursor:default;border-style:dashed}
+.hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.headset{font-family:"Space Grotesk",sans-serif;font-size:15px;color:var(--accent2);letter-spacing:.08em;font-weight:500}
+.badge{font-size:12px;letter-spacing:.12em;text-transform:uppercase;border:1px solid var(--line);border-radius:20px;padding:3px 11px;color:var(--dim)}
+.badge.ready{color:var(--accent2);border-color:var(--accent2)}
+.t{font-size:26px;font-weight:700;line-height:1.25;letter-spacing:-.01em;margin-bottom:8px}
+.meta{color:var(--dim);font-size:15px;font-weight:300;line-height:1.5}
+.foot{margin-top:70px;color:var(--dim);font-size:16px}
+.foot b{color:var(--accent2)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p style="margin-bottom:20px"><a href="../index.html" style="color:var(--dim);text-decoration:none;font-size:15px;font-family:'Space Grotesk',sans-serif;letter-spacing:.06em">↩ 課程總覽</a></p>
+  <p class="kicker">AI × Phaser 遊戲上線 · 用 AI 工具做 HTML5 遊戲</p>
+  <h1>AI × Phaser 遊戲上線 · 課程目錄</h1>
+  <p class="sub">用 <b style="color:var(--accent2)">Claude Code / Codex / Gemini Antigravity</b> 這類 AI 編輯工具，佈建 Phaser 環境、做出一個會玩的 HTML5 遊戲，再逐步部署到 GitHub Pages。重點不在背指令，而在<b style="color:var(--accent2)">怎麼「提示」AI 幫你完成每一步</b>。需要 Git 基礎時，會接回「Git / GitHub 入門」課程。</p>
+  <div id="tracks"></div>
+  <p class="foot">核心一句話：<b>你描述遊戲，AI 寫程式碼，瀏覽器就是玩家的主機。</b></p>
+</div>
+<script>
+const TRACKS=[
+  {engine:"AI 工具 × Phaser", desc:"Claude Code / Codex / Antigravity · 部署到 GitHub Pages", items:[
+    {slug:"phaser-ghp", tag:"Lesson 01", title:"AI × Phaser 遊戲上線", meta:"23 頁簡報｜Phaser 簡介 → 三大 AI 工具 → 佈建環境 → 做遊戲 → 部署 GHP 的逐步提示", status:"ready"},
+  ]},
+];
+const root=document.getElementById('tracks');
+TRACKS.forEach(tr=>{
+  const sec=document.createElement('div');sec.className='track';
+  sec.innerHTML=`<div class="track-head"><span class="eng">${tr.engine}</span><span class="desc">${tr.desc}</span></div>`;
+  const grid=document.createElement('div');grid.className='grid';
+  tr.items.forEach(c=>{
+    const ready=c.status==='ready';
+    const inner=`<div class="hd"><span class="headset">${c.tag}</span><span class="badge ${ready?'ready':''}">${ready?'可上課':'Coming soon'}</span></div>
+      <div class="t">${c.title}</div><div class="meta">${c.meta}</div>`;
+    let el;
+    if(ready){el=document.createElement('a');el.className='card';el.href=`${c.slug}/index.html`;}
+    else{el=document.createElement('div');el.className='card soon';}
+    el.innerHTML=inner;grid.appendChild(el);
+  });
+  sec.appendChild(grid);root.appendChild(sec);
+});
+</script>
+</body>
+</html>
