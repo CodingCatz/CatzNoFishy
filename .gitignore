@@ -1,0 +1,11 @@
+# Local assistant/editor state
+.claude/
+.codex/
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# 部署 / 工具腳本 — 留在本機即可，不推上公開的 Pages repo
+*.ps1

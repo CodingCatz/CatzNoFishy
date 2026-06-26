@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600" role="img" aria-label="Git / GitHub 入門 封面（占位）">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0c0d14"/>
+      <stop offset="1" stop-color="#06070b"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="78%" cy="22%" r="70%">
+      <stop offset="0" stop-color="#6c5ce7" stop-opacity="0.55"/>
+      <stop offset="45%" stop-color="#00d2d3" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#06070b" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse">
+      <path d="M48 0H0V48" fill="none" stroke="#ffffff" stroke-opacity="0.06" stroke-width="1"/>
+    </pattern>
+    <linearGradient id="ink" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f5f5f7"/>
+      <stop offset="1" stop-color="#00d2d3"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="600" height="600" fill="url(#bg)"/>
+  <rect width="600" height="600" fill="url(#grid)"/>
+  <rect width="600" height="600" fill="url(#glow)"/>
+
+  <!-- 分支 commit 圖：main 主線 + feature 分支岔出併回 -->
+  <g stroke-linecap="round">
+    <!-- main 主線 -->
+    <path d="M96 470 H504" fill="none" stroke="#9aa0aa" stroke-width="4" stroke-opacity="0.7"/>
+    <!-- feature 分支 -->
+    <path d="M200 470 C 240 470 258 392 318 392 H 360 C 420 392 438 470 478 470"
+          fill="none" stroke="#6c5ce7" stroke-width="4" stroke-opacity="0.95"/>
+    <!-- main commit -->
+    <circle cx="150" cy="470" r="13" fill="#f5f5f7"/>
+    <circle cx="200" cy="470" r="13" fill="#f5f5f7"/>
+    <!-- merge commit -->
+    <circle cx="478" cy="470" r="15" fill="#00d2d3"/>
+    <!-- branch commit -->
+    <circle cx="318" cy="392" r="13" fill="#6c5ce7"/>
+    <circle cx="396" cy="392" r="13" fill="#6c5ce7"/>
+  </g>
+
+  <!-- 標題 -->
+  <text x="64" y="150" font-family="'Space Grotesk',sans-serif" font-size="128" font-weight="700" fill="url(#ink)" letter-spacing="-4">Git</text>
+  <text x="68" y="212" font-family="'Noto Sans TC',sans-serif" font-size="34" font-weight="700" fill="#f5f5f7">GitHub 入門</text>
+  <text x="69" y="258" font-family="'Space Grotesk',sans-serif" font-size="18" font-weight="500" fill="#9aa0aa" letter-spacing="3">CLI · VERSION CONTROL · GITHUB PAGES</text>
+
+  <!-- 占位標記（換真圖時移除整張即可）-->
+  <text x="64" y="552" font-family="'Space Grotesk',sans-serif" font-size="15" font-weight="500" fill="#9aa0aa" letter-spacing="2" opacity="0.7">PLACEHOLDER · 占位封面</text>
+  <text x="536" y="552" text-anchor="end" font-family="'Space Grotesk',sans-serif" font-size="15" font-weight="700" fill="#6c5ce7" letter-spacing="2">喵Z不貓膩</text>
+</svg>

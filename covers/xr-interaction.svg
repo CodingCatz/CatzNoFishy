@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600" role="img" aria-label="XR 互動場景建置 封面（占位）">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0c0d14"/>
+      <stop offset="1" stop-color="#06070b"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="78%" cy="22%" r="70%">
+      <stop offset="0" stop-color="#6c5ce7" stop-opacity="0.55"/>
+      <stop offset="45%" stop-color="#00d2d3" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#06070b" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse">
+      <path d="M48 0H0V48" fill="none" stroke="#ffffff" stroke-opacity="0.06" stroke-width="1"/>
+    </pattern>
+    <linearGradient id="ink" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f5f5f7"/>
+      <stop offset="1" stop-color="#00d2d3"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="600" height="600" fill="url(#bg)"/>
+  <rect width="600" height="600" fill="url(#grid)"/>
+  <rect width="600" height="600" fill="url(#glow)"/>
+
+  <!-- 抓 / 指 / 走 抽象示意 -->
+  <g fill="none" stroke="#00d2d3" stroke-width="3" stroke-opacity="0.85" stroke-linecap="round">
+    <circle cx="150" cy="430" r="34"/>                         <!-- 抓：物件 -->
+    <path d="M196 396 L300 320"/>                              <!-- 指：射線 -->
+    <circle cx="300" cy="320" r="7" fill="#00d2d3" stroke="none"/>
+  </g>
+  <g fill="none" stroke="#6c5ce7" stroke-width="3" stroke-opacity="0.9" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M360 470 q60 -90 120 0"/>                         <!-- 走：傳送弧 -->
+    <ellipse cx="480" cy="470" rx="30" ry="11" stroke-opacity="0.55"/>
+  </g>
+
+  <!-- 標題 -->
+  <text x="64" y="150" font-family="'Space Grotesk',sans-serif" font-size="150" font-weight="700" fill="url(#ink)" letter-spacing="-4">XR</text>
+  <text x="68" y="210" font-family="'Noto Sans TC',sans-serif" font-size="34" font-weight="700" fill="#f5f5f7">互動場景建置</text>
+  <text x="69" y="256" font-family="'Space Grotesk',sans-serif" font-size="19" font-weight="500" fill="#9aa0aa" letter-spacing="3">UNITY · UNREAL × META QUEST</text>
+
+  <!-- 占位標記（換真圖時移除整張即可）-->
+  <text x="64" y="552" font-family="'Space Grotesk',sans-serif" font-size="15" font-weight="500" fill="#9aa0aa" letter-spacing="2" opacity="0.7">PLACEHOLDER · 占位封面</text>
+  <text x="536" y="552" text-anchor="end" font-family="'Space Grotesk',sans-serif" font-size="15" font-weight="700" fill="#6c5ce7" letter-spacing="2">喵Z不貓膩</text>
+</svg>

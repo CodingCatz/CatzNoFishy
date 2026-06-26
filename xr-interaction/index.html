@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>XR 互動場景建置 · 課程目錄</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#06070b;--card:#0f1015;--ink:#f5f5f7;--dim:#9aa0aa;--accent:#6c5ce7;--accent2:#00d2d3;--line:rgba(255,255,255,.1)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:"Noto Sans TC",sans-serif;min-height:100vh;padding:90px 8vw 120px}
+body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:64px 64px;opacity:.05;mask-image:radial-gradient(circle at 85% 8%,#000,transparent 65%)}
+.wrap{position:relative;z-index:1;max-width:1400px;margin:0 auto}
+.kicker{font-family:"Space Grotesk",sans-serif;letter-spacing:.28em;text-transform:uppercase;color:var(--accent2);font-size:16px;font-weight:500;margin-bottom:22px}
+h1{font-family:"Space Grotesk",sans-serif;font-size:72px;line-height:1.05;font-weight:700;letter-spacing:-.02em;margin-bottom:18px}
+.sub{color:var(--dim);font-size:22px;font-weight:300;max-width:820px;line-height:1.55;margin-bottom:56px}
+.track{margin-bottom:54px}
+.track-head{display:flex;align-items:baseline;gap:16px;margin-bottom:22px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+.track-head .eng{font-family:"Space Grotesk",sans-serif;font-size:30px;font-weight:700;letter-spacing:-.01em}
+.track-head .desc{color:var(--dim);font-size:17px;font-weight:300}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:22px}
+.card{display:block;text-decoration:none;color:inherit;background:var(--card);border:1px solid var(--line);
+  border-radius:16px;padding:28px 30px 32px;position:relative;overflow:hidden;transition:.25s cubic-bezier(.16,1,.3,1)}
+.card::after{content:"";position:absolute;left:0;bottom:0;height:3px;width:0;background:var(--accent);transition:width .3s}
+a.card:hover{transform:translateY(-6px);border-color:var(--accent)}
+a.card:hover::after{width:100%}
+.card.soon{opacity:.5;cursor:default;border-style:dashed}
+.hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.headset{font-family:"Space Grotesk",sans-serif;font-size:15px;color:var(--accent2);letter-spacing:.08em;font-weight:500}
+.badge{font-size:12px;letter-spacing:.12em;text-transform:uppercase;border:1px solid var(--line);border-radius:20px;padding:3px 11px;color:var(--dim)}
+.badge.ready{color:var(--accent2);border-color:var(--accent2)}
+.t{font-size:26px;font-weight:700;line-height:1.25;letter-spacing:-.01em;margin-bottom:8px}
+.meta{color:var(--dim);font-size:15px;font-weight:300;line-height:1.5}
+.foot{margin-top:70px;color:var(--dim);font-size:16px}
+.foot b{color:var(--accent2)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p style="margin-bottom:20px"><a href="../index.html" style="color:var(--dim);text-decoration:none;font-size:15px;font-family:'Space Grotesk',sans-serif;letter-spacing:.06em">↩ 課程總覽</a></p>
+  <p class="kicker">XR 互動場景建置 · 跨引擎 × 跨頭盔</p>
+  <h1>XR 互動場景建置 · 課程目錄</h1>
+  <p class="sub">同一個目標——做出「手把與空手都能 抓 / 指 / 走」的 XR 互動場景——在不同引擎與頭盔上各成一課。課程以<b style="color:var(--accent2)">種類</b>（引擎 × 頭盔）分課，而非流水號。先把概念骨架建立起來，再看換平台時什麼不變、什麼得重做。</p>
+  <div id="tracks"></div>
+  <p class="foot">核心一句話：<b>概念跨平台，設定不跨平台。</b></p>
+</div>
+<script>
+// 課程矩陣：引擎 → 各頭盔版本。status: "ready" 可點，"soon" 佔位。
+const TRACKS=[
+  {engine:"Unity 6", desc:"C# · Meta XR SDK / OpenXR", items:[
+    {slug:"unity-quest", headset:"Meta Quest 2/3", title:"互動場景建置", meta:"環境 → 套件 → Rig → 四大互動", status:"ready"},
+    {slug:"unity-pico",  headset:"PICO 4",         title:"互動場景建置", meta:"PICO Unity SDK · 對照 Quest 差異", status:"soon"},
+    {slug:"unity-vision",headset:"其他頭盔",        title:"互動場景建置", meta:"待規劃",                       status:"soon"},
+  ]},
+  {engine:"Unreal", desc:"藍圖 / C++ · Meta XR / OpenXR", items:[
+    {slug:"unreal-quest", headset:"Meta Quest 2/3", title:"互動場景建置", meta:"VR Template + ISDK · NavMesh 傳送", status:"ready"},
+    {slug:"unreal-pico",  headset:"PICO 4",         title:"互動場景建置", meta:"待規劃", status:"soon"},
+  ]},
+];
+const root=document.getElementById('tracks');
+TRACKS.forEach(tr=>{
+  const sec=document.createElement('div');sec.className='track';
+  sec.innerHTML=`<div class="track-head"><span class="eng">${tr.engine}</span><span class="desc">${tr.desc}</span></div>`;
+  const grid=document.createElement('div');grid.className='grid';
+  tr.items.forEach(c=>{
+    const ready=c.status==='ready';
+    const inner=`<div class="hd"><span class="headset">${c.headset}</span><span class="badge ${ready?'ready':''}">${ready?'可上課':'Coming soon'}</span></div>
+      <div class="t">${c.title}</div><div class="meta">${c.meta}</div>`;
+    let el;
+    if(ready){el=document.createElement('a');el.className='card';el.href=`${c.slug}/index.html`;}
+    else{el=document.createElement('div');el.className='card soon';}
+    el.innerHTML=inner;grid.appendChild(el);
+  });
+  sec.appendChild(grid);root.appendChild(sec);
+});
+</script>
+</body>
+</html>

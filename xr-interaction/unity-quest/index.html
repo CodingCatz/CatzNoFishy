@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unity × Meta Quest — XR 互動場景建置</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --stage-bg:#06070b; --slide-bg:#0f1015; --ink:#f5f5f7; --ink-dim:#9aa0aa;
+  --accent:#6c5ce7; --accent-2:#00d2d3; --line:rgba(255,255,255,.12);
+  --font-head:"Space Grotesk","Noto Sans TC",sans-serif;
+  --font-body:"Noto Sans TC",sans-serif; --font-mono:"JetBrains Mono",ui-monospace,monospace;
+  --ease:cubic-bezier(.16,1,.3,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden;background:var(--stage-bg);font-family:var(--font-body);
+  color:var(--ink);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+.deck-viewport{position:fixed;inset:0;overflow:hidden;background:var(--stage-bg);display:flex;align-items:center;justify-content:center}
+.deck-stage{position:relative;width:1920px;height:1080px;transform-origin:center center;flex:0 0 auto}
+.slide{position:absolute;inset:0;background:var(--slide-bg);padding:120px 140px;display:flex;
+  flex-direction:column;justify-content:center;opacity:0;visibility:hidden;pointer-events:none;
+  transition:opacity .5s var(--ease);overflow:hidden}
+.slide.active{opacity:1;visibility:visible;pointer-events:auto;z-index:1}
+.slide::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:0;
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:64px 64px;opacity:.05;mask-image:radial-gradient(circle at 88% 12%,#000,transparent 60%)}
+.slide>*{position:relative;z-index:1}
+.slide .reveal{opacity:0;transform:translateY(28px);transition:opacity .6s var(--ease),transform .6s var(--ease)}
+.slide.active .reveal{opacity:1;transform:none}
+.slide.active .reveal:nth-child(1){transition-delay:.05s}.slide.active .reveal:nth-child(2){transition-delay:.15s}
+.slide.active .reveal:nth-child(3){transition-delay:.25s}.slide.active .reveal:nth-child(4){transition-delay:.35s}
+.slide.active .reveal:nth-child(5){transition-delay:.45s}.slide.active .reveal:nth-child(6){transition-delay:.55s}
+.kicker{font-family:var(--font-head);font-size:26px;letter-spacing:.28em;text-transform:uppercase;
+  color:var(--accent-2);margin-bottom:32px;font-weight:500}
+h1{font-family:var(--font-head);font-size:118px;line-height:1.03;font-weight:700;letter-spacing:-.02em;margin-bottom:36px}
+h2{font-family:var(--font-head);font-size:78px;line-height:1.08;font-weight:700;letter-spacing:-.01em;margin-bottom:38px}
+.lead{font-size:42px;line-height:1.5;color:var(--ink-dim);font-weight:300;max-width:1340px}
+.big-statement{font-size:90px;line-height:1.18;font-weight:300;letter-spacing:-.01em;max-width:1520px}
+.big-statement strong{font-weight:700;color:var(--accent-2)}
+.big-statement em{font-style:normal;color:var(--accent);font-weight:700}
+ul.points{list-style:none;display:flex;flex-direction:column;gap:28px;margin-top:14px}
+ul.points li{font-size:38px;line-height:1.4;padding-left:54px;position:relative;max-width:1500px}
+ul.points li::before{content:"";position:absolute;left:0;top:17px;width:22px;height:4px;background:var(--accent);border-radius:2px}
+ul.points li b{color:var(--accent-2);font-weight:700}
+ul.points li span{color:var(--ink-dim);font-size:29px}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:90px;align-items:start;margin-top:10px}
+.cols h3{font-family:var(--font-head);font-size:34px;margin-bottom:22px;color:var(--accent-2);display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.cols .tag{font-family:var(--font-mono);font-size:20px;color:var(--ink-dim);border:1px solid var(--line);padding:3px 10px;border-radius:6px;letter-spacing:0}
+.cols ul{list-style:none;display:flex;flex-direction:column;gap:18px}
+.cols li{font-size:31px;line-height:1.45;color:var(--ink);padding-left:30px;position:relative}
+.cols li::before{content:"";position:absolute;left:0;top:15px;width:12px;height:12px;border-radius:3px;background:var(--accent)}
+.cols .dim li::before{background:var(--ink-dim)}
+.codecard{background:#0b0c12;border:1px solid var(--line);border-radius:18px;padding:36px 44px;max-width:1520px;box-shadow:0 30px 80px rgba(0,0,0,.5)}
+.codecard .bar{display:flex;align-items:center;gap:10px;margin-bottom:24px}
+.codecard .bar i{width:13px;height:13px;border-radius:50%;background:#3a3d49;display:inline-block}
+.codecard .bar i:nth-child(1){background:#ff5f57}.codecard .bar i:nth-child(2){background:#febc2e}.codecard .bar i:nth-child(3){background:#28c840}
+.codecard .file{margin-left:14px;font-family:var(--font-mono);font-size:20px;color:var(--ink-dim)}
+.codecard pre{font-family:var(--font-mono);font-size:25px;line-height:1.58;color:#e9ecf2;white-space:pre;overflow:hidden}
+.cm{color:#8b97a3}.kw{color:#74c3bb;font-weight:600}.pr{color:#9ec1e8}.nm{color:#e9ecf2}
+.note{font-size:29px;color:var(--ink-dim);margin-top:30px;max-width:1520px;line-height:1.5}
+.note b{color:var(--accent-2)}
+.progress{position:fixed;left:0;bottom:0;height:5px;background:var(--accent);z-index:50;transition:width .4s var(--ease);box-shadow:0 0 18px var(--accent)}
+.counter{position:fixed;right:104px;bottom:34px;z-index:50;font-family:var(--font-head);font-size:22px;color:var(--ink-dim);letter-spacing:.1em;user-select:none}
+.counter b{color:var(--ink);font-weight:700}
+.edge-nav{position:fixed;top:0;bottom:0;width:7vw;min-width:76px;z-index:40;cursor:pointer;opacity:0;transition:opacity .4s var(--ease)}
+.edge-nav.left{left:0}.edge-nav.right{right:0}
+.edge-nav:hover,.edge-nav.hint{opacity:1}
+.edge-nav i{position:absolute;inset:0;pointer-events:none;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.edge-nav.left i{background:radial-gradient(ellipse 92% 44% at 0% 50%,rgba(108,92,231,.30),rgba(0,210,211,.10) 45%,transparent 72%);
+  -webkit-mask-image:radial-gradient(ellipse 100% 48% at 0% 50%,#000 30%,transparent 75%);
+  mask-image:radial-gradient(ellipse 100% 48% at 0% 50%,#000 30%,transparent 75%)}
+.edge-nav.right i{background:radial-gradient(ellipse 92% 44% at 100% 50%,rgba(108,92,231,.30),rgba(0,210,211,.10) 45%,transparent 72%);
+  -webkit-mask-image:radial-gradient(ellipse 100% 48% at 100% 50%,#000 30%,transparent 75%);
+  mask-image:radial-gradient(ellipse 100% 48% at 100% 50%,#000 30%,transparent 75%)}
+.edge-nav::after{content:"";position:absolute;top:50%;transform:translateY(-50%);height:46%;width:3px;border-radius:3px;
+  background:linear-gradient(transparent,var(--accent),transparent);box-shadow:0 0 22px var(--accent)}
+.edge-nav.left::after{left:0}.edge-nav.right::after{right:0}
+.help-fab{position:fixed;right:36px;bottom:26px;z-index:55;width:46px;height:46px;border-radius:50%;
+  border:1px solid var(--line);background:rgba(0,0,0,.35);color:var(--ink-dim);font-family:var(--font-head);
+  font-size:22px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:default;user-select:none;transition:.2s}
+.help-fab:hover{color:var(--accent-2);border-color:var(--accent-2);background:rgba(0,0,0,.55);box-shadow:0 0 18px rgba(0,210,211,.35)}
+.help-pop{position:fixed;right:36px;bottom:86px;z-index:55;width:430px;max-width:calc(100vw - 60px);background:rgba(10,11,17,.92);
+  border:1px solid var(--line);border-radius:14px;padding:24px 28px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  box-shadow:0 24px 60px rgba(0,0,0,.55);opacity:0;visibility:hidden;transform:translateY(8px);
+  transition:opacity .3s var(--ease),transform .3s var(--ease),visibility .3s;pointer-events:none}
+.help-fab:hover+.help-pop,.help-pop.show{opacity:1;visibility:visible;transform:none}
+.help-pop h4{font-family:var(--font-head);font-size:19px;letter-spacing:.18em;color:var(--accent-2);margin-bottom:14px;text-transform:uppercase}
+.help-pop table{width:100%;border-collapse:collapse}
+.help-pop td{font-size:19px;color:var(--ink-dim);padding:5px 0;line-height:1.45}
+.help-pop td:first-child{width:190px;color:var(--ink)}
+.help-pop kbd{font-family:var(--font-mono);font-size:15px;border:1px solid var(--line);border-bottom-width:2px;border-radius:6px;padding:1px 8px;background:rgba(255,255,255,.06);color:var(--ink)}
+.grid-btn{position:fixed;left:36px;bottom:26px;z-index:50;width:46px;height:46px;border:1px solid var(--line);
+  background:rgba(0,0,0,.35);color:var(--ink-dim);border-radius:10px;font-size:20px;line-height:1;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:.2s}
+.grid-btn:hover{color:var(--accent);border-color:var(--accent);background:rgba(0,0,0,.55)}
+.overview{position:fixed;inset:0;z-index:60;background:rgba(6,7,11,.97);display:none;padding:60px;overflow-y:auto}
+.overview.open{display:block}
+.overview-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:26px;max-width:1600px;margin:0 auto}
+.thumb{aspect-ratio:16/9;border:1px solid var(--line);border-radius:10px;overflow:hidden;cursor:pointer;position:relative;background:var(--slide-bg);transition:.2s}
+.thumb:hover{border-color:var(--accent);transform:translateY(-4px)}
+.thumb-stage{position:absolute;top:0;left:0;width:1920px;height:1080px;transform-origin:top left;pointer-events:none}
+.thumb-stage .slide{transition:none!important}
+.thumb .t-num{position:absolute;left:10px;top:8px;z-index:3;font-family:var(--font-head);font-size:15px;color:var(--ink);background:rgba(0,0,0,.55);padding:2px 8px;border-radius:6px}
+@media (prefers-reduced-motion:reduce){.slide,.slide .reveal,.progress{transition:none!important}.slide .reveal{opacity:1;transform:none}}
+@media print{@page{size:1920px 1080px;margin:0}html,body{overflow:visible}.deck-viewport{position:static}
+  .deck-stage{transform:none!important;width:1920px;height:auto}
+  .slide{position:relative;opacity:1!important;visibility:visible!important;page-break-after:always;height:1080px}
+  .slide .reveal{opacity:1!important;transform:none!important}.progress,.counter,.overview,.grid-btn,.edge-nav,.help-fab,.help-pop{display:none!important}}
+</style>
+</head>
+<body>
+<div class="deck-viewport"><div class="deck-stage" id="stage">
+    <section class="slide active">
+      <p class="kicker reveal">XR 互動場景建置 · Unity &times; Meta Quest</p>
+      <h1 class="reveal">抓 · 指 · 走</h1>
+      <p class="lead reveal">用 Unity 6 + Meta XR SDK，做一個手把與空手都能互動的 Quest 2/3 基礎場景。</p>
+    </section>
+    <section class="slide">
+      <p class="big-statement reveal">先讓它<em>跑起來</em>，<br>再讓它<strong>抓得到</strong>。</p>
+    </section>
+    <section class="slide">
+      <p class="kicker reveal">核心觀念</p>
+      <h2 class="reveal">兩層 SDK，分清楚</h2>
+      <div class="cols">
+        <div class="reveal">
+          <h3>Meta XR Core SDK <span class="tag">runtime</span></h3>
+          <ul>
+            <li>Quest runtime、OVRPlugin、平台能力</li>
+            <li>負責「App 跑得起來」</li>
+            <li><b>不</b>提供抓取/射線/傳送</li>
+          </ul>
+        </div>
+        <div class="reveal">
+          <h3>Meta XR Interaction SDK <span class="tag">互動</span></h3>
+          <ul>
+            <li>grab / ray / teleport / hand tracking</li>
+            <li>負責「使用者能互動」</li>
+            <li>只裝 Core 抓不到任何東西</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+    <section class="slide">
+      <p class="kicker reveal">本堂目標</p>
+      <h2 class="reveal">這一課你會拿到</h2>
+      <ul class="points">
+        <li class="reveal">搞懂 Quest 套件分層：runtime 與互動各由誰負責</li>
+        <li class="reveal">完成 Android/Quest 的 <b>Build 與 Player</b> 關鍵設定</li>
+        <li class="reveal">用 <b>OpenXR + Meta All-in-One SDK</b> 把專案設到 Rig 拖進場景就能動</li>
+        <li class="reveal">做出四大互動，且<b>手把與空手</b>兩條路徑都通</li>
+      </ul>
+    </section>
+    <section class="slide">
+      <p class="kicker reveal">套件選型</p>
+      <h2 class="reveal">主推一套，備選一套</h2>
+      <div class="cols">
+        <div class="reveal">
+          <h3>主推 · 只做 Quest <span class="tag">Meta</span></h3>
+          <ul>
+            <li>Meta XR All-in-One SDK</li>
+            <li>+ OpenXR + Interaction SDK</li>
+            <li>現成 Rig / grab / ray / teleport</li>
+            <li>手把與空手整合度最高</li>
+          </ul>
+        </div>
+        <div class="reveal dim">
+          <h3>備選 · 要跨平台 <span class="tag">Unity</span></h3>
+          <ul>
+            <li>XR Interaction Toolkit + XR Hands</li>
+            <li>手把成熟，空手要自己串</li>
+            <li>hand ray / 手勢 select 多半得自接</li>
+            <li>只做 Quest 反而更貴</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+    <section class="slide">
+      <p class="kicker reveal">建置設定</p>
+      <h2 class="reveal">這幾項缺一個就 Build 不過</h2>
+      <ul class="points">
+        <li class="reveal">Build Profiles：Platform <b>Android</b> + Texture <b>ASTC</b> → Switch Platform</li>
+        <li class="reveal">Scripting Backend = <b>IL2CPP</b>，Target Architectures = <b>ARM64</b></li>
+        <li class="reveal">Active Input Handling = <b>Input System</b></li>
+        <li class="reveal">Graphics API <b>Vulkan</b> 優先，別塞太多種避免環境不一致</li>
+      </ul>
+    </section>
+    <section class="slide">
+      <p class="kicker reveal">OpenXR 設定</p>
+      <h2 class="reveal">兩條軸，管不同的事</h2>
+      <div class="cols">
+        <div class="reveal">
+          <h3>Feature Groups <span class="tag">能力</span></h3>
+          <ul>
+            <li>Meta Quest Support</li>
+            <li>Hand Tracking Subsystem</li>
+            <li>Meta Hand Tracking Aim</li>
+            <li>決定「裝置有什麼能力」</li>
+          </ul>
+        </div>
+        <div class="reveal">
+          <h3>Interaction Profiles <span class="tag">輸入</span></h3>
+          <ul>
+            <li>Oculus Touch Controller Profile</li>
+            <li>需要才加 Touch Pro Profile</li>
+            <li>決定「手把按鍵怎麼對應」</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+    <section class="slide">
+      <p class="kicker reveal">一鍵修正 &amp; 放 Rig</p>
+      <h2 class="reveal">別手動逐項對照</h2>
+      <ul class="points">
+        <li class="reveal"><b>Meta &gt; Tools &gt; Project Setup Tool</b>：選 Android → Fix All → Apply All</li>
+        <li class="reveal">刪掉場景預設 <b>Main Camera</b></li>
+        <li class="reveal">右鍵 <b>Interaction SDK &gt; Add UnityXR Interaction Rig</b></li>
+        <li class="reveal">Rig 已含 XR Origin、左右手把/手部、hand↔controller 切換、ray/poke/grab/teleport</li>
+      </ul>
+    </section>
+    <section class="slide">
+      <p class="big-statement reveal">四大互動，<br>其實是<strong>同一套骨架</strong>。</p>
+    </section>
+    <section class="slide">
+      <p class="kicker reveal">四大互動 ①</p>
+      <h2 class="reveal">抓取 &amp; 射線選取</h2>
+      <div class="cols">
+        <div class="reveal">
+          <h3>抓取物件 <span class="tag">Grabbable</span></h3>
+          <ul>
+            <li>Collider + Rigidbody + Grab Interactable</li>
+            <li>手把：grip / trigger</li>
+            <li>空手：pinch / palm</li>
+            <li>遠距離才加 Ray / Distance Grab</li>
+          </ul>
+        </div>
+        <div class="reveal">
+          <h3>射線選取 <span class="tag">Ray Interactable</span></h3>
+          <ul>
+            <li>Collider + Ray Interactable / Pointable</li>
+            <li>hover 與 select 狀態</li>
+            <li>事件回呼取得被選物</li>
+            <li>手把射線、空手 hand ray 都可</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+    <section class="slide">
+      <p class="kicker reveal">四大互動 ②</p>
+      <h2 class="reveal">地面座標 &amp; 傳送</h2>
+      <div class="cols">
+        <div class="reveal">
+          <h3>地面座標 <span class="tag">Ground Layer</span></h3>
+          <ul>
+            <li>地面進 Ground Layer</li>
+            <li>Physics.Raycast 配 groundMask</li>
+            <li>拿到 hit.point 世界座標</li>
+            <li>用來放物件 / 指定傳送點</li>
+          </ul>
+        </div>
+        <div class="reveal">
+          <h3>傳送移動 <span class="tag">Teleport</span></h3>
+          <ul>
+            <li>可傳送區加 Teleport Interactable + Layer</li>
+            <li>只能落在合法區</li>
+            <li>落地高度正常、不卡牆</li>
+            <li>手把搖桿、空手 L-gesture 都可</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+    <section class="slide">
+      <p class="kicker reveal">階段性程式碼</p>
+      <h2 class="reveal" style="font-size:62px">射線取得地面座標</h2>
+      <div class="codecard reveal">
+        <div class="bar"><i></i><i></i><i></i><span class="file">Scripts/XR/GroundRaycaster.cs</span></div>
+<pre><span class="kw">public</span> <span class="kw">sealed</span> <span class="kw">class</span> GroundRaycaster : MonoBehaviour
+{
+    [SerializeField] <span class="kw">private</span> Transform _rayOrigin;
+    [SerializeField] <span class="kw">private</span> <span class="kw">float</span> _maxDistance = <span class="pr">100f</span>;
+    [SerializeField] <span class="kw">private</span> LayerMask _groundMask;   <span class="cm">// 只命中地面</span>
+
+    <span class="kw">public</span> <span class="kw">bool</span> TryGetGroundPoint(<span class="kw">out</span> Vector3 groundPoint)
+    {
+        Transform origin = _rayOrigin != <span class="kw">null</span> ? _rayOrigin : transform;
+        <span class="kw">bool</span> hitGround = Physics.Raycast(
+            origin.position, origin.forward, <span class="kw">out</span> RaycastHit hit, _maxDistance, _groundMask);
+        groundPoint = hitGround ? hit.point : Vector3.zero;
+        <span class="kw">return</span> hitGround;
+    }
+}</pre>
+      </div>
+      <p class="note reveal">SDK 給了射線元件，但「拿到地面點要幹嘛」是<b>專案邏輯</b>，得自己接。</p>
+    </section>
+    <section class="slide">
+      <p class="kicker reveal">雙路徑</p>
+      <h2 class="reveal">手把 ↔ 空手，一個都不能少</h2>
+      <div class="cols">
+        <div class="reveal">
+          <h3>手把 <span class="tag">Controller</span></h3>
+          <ul>
+            <li>抓取：Grip / Trigger</li>
+            <li>射線：Controller Ray</li>
+            <li>地座標：Controller Raycast</li>
+            <li>傳送：Thumbstick / Button</li>
+          </ul>
+        </div>
+        <div class="reveal">
+          <h3>空手 <span class="tag">Hand</span></h3>
+          <ul>
+            <li>抓取：Pinch / Palm Grab</li>
+            <li>射線：Hand Ray</li>
+            <li>地座標：Hand Raycast</li>
+            <li>傳送：L-Gesture / Pinch</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+    <section class="slide">
+      <p class="kicker reveal">Layer 分層</p>
+      <h2 class="reveal">射線該打到誰，靠 LayerMask 決定</h2>
+      <ul class="points">
+        <li class="reveal">建 Layer：<b>Ground / Interactable / Teleport / UI / Player</b></li>
+        <li class="reveal">Object Ray Mask → 只命中可互動物</li>
+        <li class="reveal">Ground Ray Mask → 只命中地面</li>
+        <li class="reveal">Teleport Ray Mask → 只命中可傳送區，不誤判 UI 或抓取物</li>
+      </ul>
+    </section>
+    <section class="slide">
+      <p class="kicker reveal">本堂路線</p>
+      <h2 class="reveal">今天你會走過這些</h2>
+      <ul class="points">
+        <li class="reveal">搞懂 Core SDK 與 Interaction SDK 的分工</li>
+        <li class="reveal">選套件：<b>All-in-One + OpenXR + ISDK</b></li>
+        <li class="reveal">設 Build / Player：IL2CPP · ARM64 · Vulkan · Input System</li>
+        <li class="reveal">開 OpenXR Feature Groups + Interaction Profiles</li>
+        <li class="reveal">Project Setup Tool 一鍵修，放 Interaction Rig</li>
+        <li class="reveal">做四大互動，手把與空手雙路徑都通</li>
+      </ul>
+    </section>
+    <section class="slide">
+      <p class="kicker reveal">動手 &amp; 檢核</p>
+      <h2 class="reveal">練習一下，看看學會沒</h2>
+      <div class="cols">
+        <div class="reveal">
+          <h3>課堂練習</h3>
+          <ul>
+            <li>把方塊設成可抓取，手把抓一次、空手抓一次</li>
+            <li>故意把地面 Layer 設錯，看 GroundRaycaster 取不到點再修</li>
+            <li>放兩塊傳送區 + 一塊禁區，確認只能傳合法區</li>
+          </ul>
+        </div>
+        <div class="reveal dim">
+          <h3>學完你會</h3>
+          <ul>
+            <li>說得出 Core 與 Interaction SDK 的分工</li>
+            <li>能成功 Build 出 ARM64 APK</li>
+            <li>手把與空手都能抓 / 指 / 走，不穿地不卡牆</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+    <section class="slide">
+      <p class="kicker reveal">帶走一句話</p>
+      <h1 class="reveal" style="font-size:90px">概念跨平台，<br>設定不跨平台。</h1>
+      <p class="lead reveal">下一個種類（unreal-quest / unity-pico）會以這四大互動為基準，凸顯換引擎、換頭盔時什麼不變、什麼得重做。</p>
+    </section>
+</div></div>
+<div class="progress" id="progress"></div>
+<button class="grid-btn" id="gridBtn" title="總覽 (O)" aria-label="總覽">&#9638;</button>
+<div class="counter"><b id="cur">1</b> / <span id="total">1</span></div>
+<div class="edge-nav left" id="edgeL" aria-label="上一頁"><i></i></div>
+<div class="edge-nav right" id="edgeR" aria-label="下一頁"><i></i></div>
+<div class="help-fab" id="helpFab" aria-label="操作說明">?</div>
+<div class="help-pop" id="helpPop">
+  <h4>操作說明</h4>
+  <table>
+    <tr><td>點 左 / 右邊緣</td><td>上一頁 / 下一頁</td></tr>
+    <tr><td><kbd>&#8592;</kbd> <kbd>&#8594;</kbd> <kbd>Space</kbd></td><td>翻頁</td></tr>
+    <tr><td>滾輪 / 觸控滑動</td><td>翻頁</td></tr>
+    <tr><td><kbd>&#8593;</kbd></td><td>回課程總目錄首頁</td></tr>
+    <tr><td><kbd>&#8595;</kbd> / <kbd>O</kbd></td><td>本課投影片總覽</td></tr>
+    <tr><td><kbd>F</kbd></td><td>全螢幕</td></tr>
+    <tr><td><kbd>Home</kbd> / <kbd>End</kbd></td><td>第一張 / 最後一張</td></tr>
+    <tr><td>數字 + <kbd>Enter</kbd></td><td>跳到指定頁</td></tr>
+  </table>
+</div>
+<div class="overview" id="overview"><div class="overview-grid" id="ovGrid"></div></div>
+<script>
+(function(){
+  const stage=document.getElementById('stage'),slides=Array.from(document.querySelectorAll('.slide')),
+  progress=document.getElementById('progress'),curEl=document.getElementById('cur'),totalEl=document.getElementById('total'),
+  overview=document.getElementById('overview'),ovGrid=document.getElementById('ovGrid');
+  let i=slides.findIndex(s=>s.classList.contains('active'));if(i<0)i=0;let jumpBuf='';
+  totalEl.textContent=slides.length;
+  function fit(){const s=Math.min(innerWidth/1920,innerHeight/1080);stage.style.transform=`scale(${s})`;}
+  addEventListener('resize',()=>{fit();if(overview.classList.contains('open'))scaleThumbs();});fit();
+  function go(n){n=Math.max(0,Math.min(slides.length-1,n));if(n===i)return;slides[i].classList.remove('active');i=n;slides[i].classList.add('active');render();}
+  const next=()=>go(i+1),prev=()=>go(i-1);
+  function render(){curEl.textContent=i+1;progress.style.width=((i+1)/slides.length*100)+'%';}
+  addEventListener('keydown',e=>{if(overview.classList.contains('open')&&e.key!=='o'&&e.key!=='O'&&e.key!=='Escape'&&e.key!=='ArrowDown')return;
+    switch(e.key){case 'ArrowRight':case 'PageDown':case ' ':e.preventDefault();next();break;
+      case 'ArrowLeft':case 'PageUp':e.preventDefault();prev();break;case 'Home':go(0);break;case 'End':go(slides.length-1);break;
+      case 'ArrowUp':e.preventDefault();location.href='../index.html';break;
+      case 'ArrowDown':e.preventDefault();toggleOverview();break;
+      case 'f':case 'F':if(!document.fullscreenElement)document.documentElement.requestFullscreen();else document.exitFullscreen();break;
+      case 'o':case 'O':toggleOverview();break;case 'Escape':if(overview.classList.contains('open'))toggleOverview();break;
+      case 'Enter':if(jumpBuf){go(parseInt(jumpBuf,10)-1);jumpBuf='';}break;
+      default:if(e.key>='0'&&e.key<='9')jumpBuf+=e.key;}});
+  const edgeL=document.getElementById('edgeL'),edgeR=document.getElementById('edgeR');
+  edgeL.addEventListener('click',prev);edgeR.addEventListener('click',next);
+  edgeL.classList.add('hint');edgeR.classList.add('hint');
+  setTimeout(()=>{edgeL.classList.remove('hint');edgeR.classList.remove('hint');},2000);
+  const helpFab=document.getElementById('helpFab'),helpPop=document.getElementById('helpPop');
+  helpFab.addEventListener('click',e=>{e.stopPropagation();helpPop.classList.toggle('show');});
+  addEventListener('click',e=>{if(helpPop.classList.contains('show')&&!helpPop.contains(e.target))helpPop.classList.remove('show');});
+  let wl=false;addEventListener('wheel',e=>{if(wl)return;if(Math.abs(e.deltaY)<20)return;wl=true;(e.deltaY>0?next:prev)();setTimeout(()=>wl=false,600);},{passive:true});
+  let tx=0;addEventListener('touchstart',e=>tx=e.touches[0].clientX,{passive:true});
+  addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)>60)(dx<0?next:prev)();},{passive:true});
+  function buildOverview(){slides.forEach((s,idx)=>{const card=document.createElement('div');card.className='thumb';
+    const holder=document.createElement('div');holder.className='thumb-stage';const mini=s.cloneNode(true);mini.classList.add('active');
+    mini.querySelectorAll('.reveal').forEach(r=>{r.style.opacity=1;r.style.transform='none';});holder.appendChild(mini);
+    const num=document.createElement('div');num.className='t-num';num.textContent=idx+1;card.appendChild(holder);card.appendChild(num);
+    card.addEventListener('click',()=>{toggleOverview();go(idx);});ovGrid.appendChild(card);});}
+  function scaleThumbs(){ovGrid.querySelectorAll('.thumb').forEach(c=>{const st=c.querySelector('.thumb-stage');if(st)st.style.transform=`scale(${c.clientWidth/1920})`;});}
+  function toggleOverview(){overview.classList.toggle('open');if(overview.classList.contains('open'))scaleThumbs();}
+  document.getElementById('gridBtn').addEventListener('click',toggleOverview);buildOverview();render();
+})();
+</script>
+</body></html>
